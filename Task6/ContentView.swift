@@ -35,15 +35,33 @@ struct DiagonalStack: Layout {
 
 struct ContentView: View {
     @State private var isDiagonal = false
-    let numberOfSquares: CGFloat = 7
+    @State private var numberOfSquares: CGFloat = 7
     let stackSpacing: CGFloat = 10
     
     var body: some View {
         GeometryReader { geometry in
             let layout = isDiagonal ? AnyLayout(DiagonalStack()) : AnyLayout(HStackLayout(spacing: stackSpacing))
-            let squareSize: CGFloat = isDiagonal ? 
+            let squareSize: CGFloat = isDiagonal ?
             geometry.size.height / numberOfSquares :
             (geometry.size.width - stackSpacing * (numberOfSquares - 1)) / numberOfSquares
+            HStack {
+                Button(action: {
+                    if numberOfSquares > 1 {
+                        numberOfSquares -= 1
+                    }
+                }) {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.largeTitle)
+                }
+                Button(action: {
+                    numberOfSquares += 1
+                }) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.largeTitle)
+                }
+            }
+            .padding()
+            .frame(width: geometry.size.width)
             layout {
                 ForEach(0..<Int(self.numberOfSquares), id: \.self) { index in
                     Rectangle()
@@ -53,6 +71,7 @@ struct ContentView: View {
                             width: squareSize,
                             height: squareSize)
                         .animation(.smooth, value: self.isDiagonal)
+                        .animation(.bouncy, value: numberOfSquares)
                 }
             }
             .onTapGesture {
